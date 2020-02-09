@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
+import PropTypes from 'prop-types';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
@@ -30,7 +31,8 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
-      error: null
+      error: null,
+      isLoading: false
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
@@ -62,11 +64,14 @@ class App extends Component {
       results: {
         ...results,
         [searchKey]: { hits: updatedHits, page }
-      }
+      },
+      isLoading: false
     });
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
+    this.setState({ isLoading: true });
+
     axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(result => this.setSearchTopStories(result.data))
       .catch(error => this.setState({ error }));
@@ -113,7 +118,8 @@ class App extends Component {
       searchTerm,
       results,
       searchKey,
-      error
+      error,
+      isLoading
     } = this.state;
 
     const page = (
@@ -141,9 +147,12 @@ class App extends Component {
                   <Table list={list} onDismiss={this.onDismiss} />
         }
         <div className="interactions">
-          <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
-            More
-          </Button>
+          {isLoading
+            ? <Loading/>
+            : <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+                More
+              </Button>
+          }
         </div>
         
       </div>
@@ -151,13 +160,31 @@ class App extends Component {
   }
 }
 
-const Search = ({ value, onChange, onSubmit, children }) =>
-  <form onSubmit={onSubmit}>
-    <input type="text" value={value} onChange={onChange} />
-    <button type="submit">
-      {children}
-    </button>
-  </form>
+class Search extends Component {
+  componentDidMount() {
+    if (this.input) {
+      this.input.focus();
+    }
+  }
+
+  render(){
+    const { 
+      value, 
+      onChange,
+      onSubmit, 
+      children 
+    } = this.props;
+
+    return (
+      <form onSubmit={onSubmit}>
+        <input type="text" value={value} onChange={onChange} ref={el => this.input = el} />
+        <button type="submit">
+          {children}
+        </button>
+      </form>
+    )
+  }
+}
 
 const Table = ({ list, onDismiss }) =>
   <div className="table">
@@ -187,14 +214,37 @@ const Table = ({ list, onDismiss }) =>
     )}
   </div>
 
+Table.propTypes = {
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+      objectID: PropTypes.string.isRequired,
+      author: PropTypes.string,
+      url: PropTypes.string,
+      num_comments: PropTypes.number,
+      points: PropTypes.number
+    })
+  ).isRequired,
+  onDismiss: PropTypes.func.isRequired
+};
+ 
 
-const Button = ({ onClick, className = '', children, }) => 
+const Button = ({ onClick, className, children, }) => 
   <button onClick={onClick} className={className} type="button" >
     {children}
   </button>
-  
 
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired
+};
+
+Button.defaultProps = {
+  className: ''
+};
   
+const Loading = () => 
+  <div>Loading...</div>
 
 export default App;
 
