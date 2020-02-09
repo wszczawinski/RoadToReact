@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
-import PropTypes from 'prop-types';
+import Button from './components/Button';
+import Search from './components/Search';
+import Table from './components/Table'
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
@@ -10,18 +12,6 @@ const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
-
-const largeColumn = {
-  width: '40%',
-};
-
-const midColumn = {
-  width: '30%',
-};
-
-const smallColumn = {
-  width: '10%',
-};
 
 class App extends Component {
   constructor(props){
@@ -102,7 +92,6 @@ class App extends Component {
     const { searchKey, results } = this.state;
     const { hits, page } = results[searchKey];
 
-    
     const isNotId = item => item.objectID !== id;
     const updatedHits = hits.filter(isNotId);
     this.setState({
@@ -136,16 +125,18 @@ class App extends Component {
 
     return (
       <div className="page">
+
         <div className="interactions">
           <Search value={searchTerm} onChange={this.onSearchChange} onSubmit={this.onSearchSubmit} >
             Search
           </Search>
         </div>
-        {error  ? 
-                  <div className="interactions"><p>Something went wrong.</p></div> 
-                : 
-                  <Table list={list} onDismiss={this.onDismiss} />
+
+        {error  
+          ? <div className="interactions"><p>Something went wrong.</p></div> 
+          : <Table list={list} onDismiss={this.onDismiss} />
         }
+
         <div className="interactions">
           {isLoading
             ? <Loading/>
@@ -160,96 +151,7 @@ class App extends Component {
   }
 }
 
-class Search extends Component {
-  componentDidMount() {
-    if (this.input) {
-      this.input.focus();
-    }
-  }
-
-  render(){
-    const { 
-      value, 
-      onChange,
-      onSubmit, 
-      children 
-    } = this.props;
-
-    return (
-      <form onSubmit={onSubmit}>
-        <input type="text" value={value} onChange={onChange} ref={el => this.input = el} />
-        <button type="submit">
-          {children}
-        </button>
-      </form>
-    )
-  }
-}
-
-const Table = ({ list, onDismiss }) =>
-  <div className="table">
-    {list.map(item =>
-      <div key={item.objectID} className="table-row">
-        <span style={largeColumn}>
-          <a href={item.url}>{item.title}</a>
-        </span>
-        <span style={midColumn}>
-          {item.author}
-        </span>
-        <span style={smallColumn}>
-          {item.num_comments}
-        </span>
-        <span style={smallColumn}>
-          {item.points}
-        </span>
-        <span style={smallColumn}>
-          <Button
-            onClick={() => onDismiss(item.objectID)}
-            className="button-inline"
-          >
-            Dismiss
-          </Button>
-        </span>
-      </div>
-    )}
-  </div>
-
-Table.propTypes = {
-  list: PropTypes.arrayOf(
-    PropTypes.shape({
-      objectID: PropTypes.string.isRequired,
-      author: PropTypes.string,
-      url: PropTypes.string,
-      num_comments: PropTypes.number,
-      points: PropTypes.number
-    })
-  ).isRequired,
-  onDismiss: PropTypes.func.isRequired
-};
- 
-
-const Button = ({ onClick, className, children, }) => 
-  <button onClick={onClick} className={className} type="button" >
-    {children}
-  </button>
-
-Button.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired
-};
-
-Button.defaultProps = {
-  className: ''
-};
-  
 const Loading = () => 
   <div>Loading...</div>
 
 export default App;
-
-export {
-  Button,
-  Search,
-  Table
-};
