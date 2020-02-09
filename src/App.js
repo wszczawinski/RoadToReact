@@ -131,20 +131,14 @@ class App extends Component {
     return (
       <div className="page">
         <div className="interactions">
-          <Search
-            value={searchTerm}
-            onChange={this.onSearchChange}
-            onSubmit={this.onSearchSubmit}
-          >
+          <Search value={searchTerm} onChange={this.onSearchChange} onSubmit={this.onSearchSubmit} >
             Search
           </Search>
         </div>
-        {error ? <div className="interactions"><p>Something went wrong.</p></div> 
-        :
-        <Table
-          list={list}
-          onDismiss={this.onDismiss}
-        />
+        {error  ? 
+                  <div className="interactions"><p>Something went wrong.</p></div> 
+                : 
+                  <Table list={list} onDismiss={this.onDismiss} />
         }
         <div className="interactions">
           <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
@@ -157,18 +151,9 @@ class App extends Component {
   }
 }
 
-const Search = ({
-  value,
-  onChange,
-  onSubmit,
-  children
-}) =>
+const Search = ({ value, onChange, onSubmit, children }) =>
   <form onSubmit={onSubmit}>
-    <input
-      type="text"
-      value={value}
-      onChange={onChange}
-    />
+    <input type="text" value={value} onChange={onChange} />
     <button type="submit">
       {children}
     </button>
@@ -203,18 +188,13 @@ const Table = ({ list, onDismiss }) =>
   </div>
 
 
-const Button = ({
-  onClick,
-  className = '',
-  children,
-}) =>
-  <button
-    onClick={onClick}
-    className={className}
-    type="button"
-  >
+const Button = ({ onClick, className = '', children, }) => 
+  <button onClick={onClick} className={className} type="button" >
     {children}
   </button>
+  
+
+  
 
 export default App;
 
